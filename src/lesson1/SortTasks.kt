@@ -132,26 +132,21 @@ fun sortAddresses(inputName: String, outputName: String) {
     }
 
     class Location(line: String) : Comparable<Location> {
-        val residents = mutableListOf<Resident>()
+        val resident: Resident
         val name: String
         val number: Int
 
-        private val regex = Regex("""([А-ЯЁA-Z][а-яёa-z]*)+ ([А-ЯЁA-Z][а-яёa-z]*)+ - [А-ЯЁA-Z][а-яёa-z]*(-?[А-ЯЁA-Z][а-яёa-z]*)* \d+""")
+        private val regex =
+            Regex("""([А-ЯЁA-Z][а-яёa-z]*)+ ([А-ЯЁA-Z][а-яёa-z]*)+ - [А-ЯЁA-Z][а-яёa-z]*(-?[А-ЯЁA-Z][а-яёa-z]*)* \d+""")
 
         init {
             if (!regex.matches(line)) println(line)
             require(regex.matches(line))
             val list = line.split(" - ", " ")
-            residents.add(Resident(list[0], list[1]))
+            resident = Resident(list[0], list[1])
             name = list[2]
             number = list[3].toInt()
         }
-
-        fun addResident(resident: Resident) {
-            residents.add(resident)
-        }
-
-        override fun toString() = name + " " + number + " - " + residents.sorted().joinToString(", ")
 
         override fun compareTo(other: Location): Int {
             if (name > other.name) return 1
@@ -182,17 +177,28 @@ fun sortAddresses(inputName: String, outputName: String) {
         }
     }
 
-    val locations = mutableSetOf<Location>()
-    File(inputName).readLines().forEach {
-        val location = Location(it)
-        if (location !in locations) {
-            locations.add(location)
-        } else {
-            locations.find { it == location }!!.addResident(location.residents.first())
-        }
+    class LocationCombined(location: Location) {
+        val name = location.name
+        val number = location.number
+        val list = mutableListOf(location.resident)
 
+        override fun toString() = name + " " + number + " - " + list.sorted().joinToString(", ")
     }
-    save(outputName, locations.sorted())
+
+    val locations = File(inputName).readLines().map { Location(it) }.sorted()
+    val combined = mutableListOf<LocationCombined>()
+
+    var prev = locations.first()
+    combined.add(LocationCombined(prev))
+    for (location in locations.drop(1)) {
+        if (location.name == prev.name && location.number == prev.number) {
+            combined.last().list.add(location.resident)
+        } else {
+            combined.add(LocationCombined(location))
+            prev = location
+        }
+    }
+    save(outputName, combined)
 }
 
 /**
