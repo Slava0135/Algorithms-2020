@@ -59,7 +59,7 @@ fun sortTimes(inputName: String, outputName: String) {
             if (hours < other.hours) return -1
 
             if (minutes > other.minutes) return 1
-            if (minutes < other.hours) return -1
+            if (minutes < other.minutes) return -1
 
             if (seconds > other.seconds) return 1
             if (seconds < other.seconds) return -1
