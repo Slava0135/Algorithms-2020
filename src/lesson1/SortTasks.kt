@@ -34,6 +34,19 @@ import java.io.File
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
+private fun <T> save(outputName: String, list: List<T>) {
+    require(list.isNotEmpty())
+    File(outputName).bufferedWriter().use {
+        val iter = list.iterator()
+        while (iter.hasNext()) {
+            it.write(iter.next().toString())
+            if (iter.hasNext()) {
+                it.newLine()
+            }
+        }
+    }
+}
+
 fun sortTimes(inputName: String, outputName: String) {
     class Time(line: String) : Comparable<Time> {
         val hours: Int
@@ -74,19 +87,7 @@ fun sortTimes(inputName: String, outputName: String) {
                     + ":" + seconds.toString().padStart(2, '0')
                     + " " + m)
     }
-
-    val times = File(inputName).readLines().map { Time(it) }.sorted()
-    println(times)
-    require(times.isNotEmpty())
-    File(outputName).bufferedWriter().use {
-        val iter = times.iterator()
-        while (iter.hasNext()) {
-            it.write(iter.next().toString())
-            if (iter.hasNext()) {
-                it.newLine()
-            }
-        }
-    }
+    save(outputName, File(inputName).readLines().map { Time(it) }.sorted())
 }
 
 /**
