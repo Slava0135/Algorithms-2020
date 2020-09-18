@@ -2,6 +2,8 @@
 
 package lesson1
 
+import java.io.File
+
 /**
  * Сортировка времён
  *
@@ -33,7 +35,59 @@ package lesson1
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortTimes(inputName: String, outputName: String) {
-    TODO()
+    fun sortTimes(inputName: String, outputName: String) {
+        class Time(line: String) : Comparable<Time> {
+            val hours: Int
+            val minutes: Int
+            val seconds: Int
+            val m: String
+
+            init {
+                require(Regex("""\d\d:\d\d:\d\d ((AM)|(PM))""").matches(line))
+                val list = line.split(' ', ':')
+                val h = list.first().toInt()
+                require(h in 0..12)
+                m = list.last()
+                hours = h + if (m == "PM" && h != 12) 12 else 0 - if (m == "AM" && h == 12) 12 else 0
+                minutes = list[1].toInt()
+                require(minutes in 0..59)
+                seconds = list[2].toInt()
+                require(seconds in 0..59)
+            }
+
+            override fun compareTo(other: Time): Int {
+                if (hours > other.hours) return 1
+                if (hours < other.hours) return -1
+
+                if (minutes > other.minutes) return 1
+                if (minutes < other.hours) return -1
+
+                if (seconds > other.seconds) return 1
+                if (seconds < other.seconds) return -1
+
+                return 0
+            }
+
+            override fun toString() =
+                ((hours + (if (m == "AM" && hours == 0) 12 else 0) - (if (m == "PM" && hours != 12) 12 else 0)).toString()
+                    .padStart(2, '0')
+                        + ":" + minutes.toString().padStart(2, '0')
+                        + ":" + seconds.toString().padStart(2, '0')
+                        + " " + m)
+        }
+
+        val times = File(inputName).bufferedReader().readLines().map { Time(it) }.sorted()
+        require(times.isNotEmpty())
+        File(outputName).bufferedWriter().apply {
+            val iter = times.iterator()
+            while (iter.hasNext()) {
+                this.write(iter.next().toString())
+                if (iter.hasNext()) {
+                    this.newLine()
+                }
+            }
+        }
+    }
 }
 
 /**
