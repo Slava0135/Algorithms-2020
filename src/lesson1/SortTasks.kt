@@ -3,6 +3,7 @@
 package lesson1
 
 import java.io.File
+import java.lang.Math.abs
 
 /**
  * Сортировка времён
@@ -128,7 +129,6 @@ fun sortAddresses(inputName: String, outputName: String) {
 
             return 0
         }
-
     }
 
     class Location(line: String) : Comparable<Location> {
@@ -232,7 +232,20 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    val low = -2730
+    val high = 5000
+    val lines = File(inputName).readLines().map { it.replace(".", "").toInt() - low}.toIntArray()
+    val sorted = countingSort(lines, high - low)
+    save(outputName, sorted.map {
+        val actual = it + low
+        val i = kotlin.math.abs(actual / 10).toString()
+        val f = kotlin.math.abs(actual % 10).toString()
+        if (actual < 0) {
+            "-$i.$f"
+        } else {
+            "$i.$f"
+        }
+    })
 }
 
 /**
