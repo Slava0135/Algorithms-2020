@@ -117,7 +117,82 @@ fun sortTimes(inputName: String, outputName: String) {
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortAddresses(inputName: String, outputName: String) {
-    TODO()
+    class Resident(val firstName: String, val secondName: String) : Comparable<Resident> {
+        override fun toString() = firstName + " " + secondName
+        override fun compareTo(other: Resident): Int {
+            if (firstName > other.firstName) return 1
+            if (firstName < other.firstName) return -1
+
+            if (secondName > other.secondName) return 1
+            if (secondName < other.secondName) return -1
+
+            return 0
+        }
+
+    }
+
+    class Location(line: String) : Comparable<Location> {
+        val residents = mutableListOf<Resident>()
+        val name: String
+        val number: Int
+
+        private val regex = Regex("""([А-ЯЁA-Z][а-яёa-z]*)+ ([А-ЯЁA-Z][а-яёa-z]*)+ - [А-ЯЁA-Z][а-яёa-z]*(-?[А-ЯЁA-Z][а-яёa-z]*)* \d+""")
+
+        init {
+            if (!regex.matches(line)) println(line)
+            require(regex.matches(line))
+            val list = line.split(" - ", " ")
+            residents.add(Resident(list[0], list[1]))
+            name = list[2]
+            number = list[3].toInt()
+        }
+
+        fun addResident(resident: Resident) {
+            residents.add(resident)
+        }
+
+        override fun toString() = name + " " + number + " - " + residents.sorted().joinToString(", ")
+
+        override fun compareTo(other: Location): Int {
+            if (name > other.name) return 1
+            if (name < other.name) return -1
+
+            if (number > other.number) return 1
+            if (number < other.number) return -1
+
+            return 0
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Location
+
+            if (name != other.name) return false
+            if (number != other.number) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = name.hashCode()
+            result = 31 * result + number
+            return result
+        }
+    }
+
+    val locations = mutableSetOf<Location>()
+    File(inputName).readLines().forEach {
+        val location = Location(it)
+        if (location !in locations) {
+            locations.add(location)
+        } else {
+            locations.find { it == location }!!.addResident(location.residents.first())
+        }
+
+    }
+    save(outputName, locations.sorted())
 }
 
 /**
