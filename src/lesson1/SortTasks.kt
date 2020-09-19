@@ -278,7 +278,18 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 fun sortSequence(inputName: String, outputName: String) {
-    TODO()
+    val list = File(inputName).readLines().map { it.toInt() }
+    val count = mutableMapOf<Int, Int>()
+    for (num in list) {
+        count[num] = (count[num] ?: 0) + 1
+    }
+    var freq = count.iterator().next()
+    for (num in count) {
+        if (num.value > freq.value || num.value == freq.value && num.key < freq.key) {
+            freq = num
+        }
+    }
+    save(outputName, list.filter { it != freq.key } + generateSequence { freq.key }.take(freq.value))
 }
 
 /**
