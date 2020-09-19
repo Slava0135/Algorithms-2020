@@ -296,6 +296,23 @@ fun sortSequence(inputName: String, outputName: String) {
  * Результат: second = [1 3 4 9 9 13 15 20 23 28]
  */
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
-    TODO()
+    var iOne = 0
+    var iTwo = first.size
+    var index = 0
+    while (index < second.size) {
+        if (iOne == first.size) {
+            second[index++] = second[iTwo++]
+            continue
+        }
+        if (iTwo == second.size) {
+            second[index++] = first[iOne++]
+            continue
+        }
+        if (first[iOne] < second[iTwo]!!) {
+            second[index++] = first[iOne++]
+        } else {
+            second[index++] = second[iTwo++]
+        }
+    }
 }
 
