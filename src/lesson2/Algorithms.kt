@@ -38,6 +38,7 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
 
     var result: Pair<Int, Int>? = null
     var maxDiff = 0
+
     var i = 1
     while (i < numbers.size) {
         if (numbers[i - 1] < min) {
@@ -103,7 +104,11 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
  * но приветствуется попытка решить её самостоятельно.
  */
 fun josephTask(menNumber: Int, choiceInterval: Int): Int {
-    TODO()
+    var result = 0
+    for (i in 1..menNumber) {
+        result = (result + choiceInterval) % i
+    }
+    return result + 1
 }
 
 /**
@@ -118,7 +123,30 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * вернуть ту из них, которая встречается раньше в строке first.
  */
 fun longestCommonSubstring(first: String, second: String): String {
-    TODO()
+    val grid = Array(first.length) { IntArray(second.length) { 0 } }
+    for (j in grid[0].indices) {
+        if (first[0] == second[j]) {
+            grid[0][j] = 1
+        }
+    }
+
+    var maxF = 0
+    var maxValue = 0
+    for (i in 1 until grid.size) {
+        for (j in grid[0].indices) {
+            if (first[i] == second[j]) {
+                if (j > 0) {
+                    grid[i][j] = grid[i - 1][j - 1]
+                }
+                grid[i][j]++
+                if (grid[i][j] > maxValue) {
+                    maxF = i
+                    maxValue = grid[i][j]
+                }
+            }
+        }
+    }
+    return first.substring(maxF - (maxValue - 1)..maxF)
 }
 
 /**
