@@ -103,7 +103,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 parent = successor
                 successor = parent.left!!
             }
-            parent.left = successor.right
+
+            if (parent != target) {
+                parent.left = successor.right
+            }
 
             successor.left = target.left
             if (target.right != successor) {
@@ -113,6 +116,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         }
 
         if (root == null) return false
+
         if (root!!.value == element) {
             root = if (root!!.left != null && root!!.right != null) {
                 replace(root!!)
