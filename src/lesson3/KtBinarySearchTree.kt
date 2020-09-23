@@ -1,5 +1,6 @@
 package lesson3
 
+import java.lang.IllegalStateException
 import java.util.*
 import kotlin.math.max
 
@@ -80,7 +81,75 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Средняя
      */
     override fun remove(element: T): Boolean {
-        TODO()
+
+        fun findParent(start: Node<T>): Node<T>? {
+            if (element < start.value) {
+                if (start.left == null) return null
+                if (start.left!!.value == element) return start
+                return findParent(start.left!!)
+            }
+            if (element > start.value) {
+                if (start.right == null) return null
+                if (start.right!!.value == element) return start
+                return findParent(start.right!!)
+            }
+            throw IllegalStateException()
+        }
+
+        fun replace(target: Node<T>): Node<T> {
+            var parent = target
+            var successor = parent.right!!
+            while (successor.left != null) {
+                parent = successor
+                successor = parent.left!!
+            }
+            parent.left = successor.right
+
+            successor.left = target.left
+            if (target.right != successor) {
+                successor.right = target.right
+            }
+            return successor
+        }
+
+        if (root == null) return false
+        if (root!!.value == element) {
+            root = if (root!!.left != null && root!!.right != null) {
+                replace(root!!)
+            } else if (root!!.left != null) {
+                root!!.left
+            } else if (root!!.right != null) {
+                root!!.right
+            } else {
+                null
+            }
+            size--
+            return true
+        }
+
+        val parent = findParent(root!!) ?: return false
+
+        if (parent.left?.value == element) {
+            val node = parent.left!!
+            if (node.left != null && node.right != null) {
+                parent.left = replace(node)
+            } else if (node.left != null) {
+                parent.left = node.left
+            } else if (node.right != null) {
+                parent.left = node.right
+            } else parent.left = null
+        } else {
+            val node = parent.right!!
+            if (node.left != null && node.right != null) {
+                parent.right = replace(node)
+            } else if (node.left != null) {
+                parent.right = node.left
+            } else if (node.right != null) {
+                parent.right = node.right
+            } else parent.right = null
+        }
+        size--
+        return true
     }
 
     override fun comparator(): Comparator<in T>? =
@@ -232,5 +301,4 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         val right = node.right
         return right == null || right.value > node.value && checkInvariant(right)
     }
-
 }
