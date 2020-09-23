@@ -164,15 +164,18 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
 
-        private val iter = (root?.let { combine(it) } ?: emptyList()).iterator()
+        private val iter: Iterator<T>
         private var last: T? = null
 
-        private fun combine(node: Node<T>): List<T> {
+        init {
             val result = mutableListOf<T>()
-            if (node.left != null) result.addAll(combine(node.left!!))
-            result.add(node.value)
-            if (node.right != null) result.addAll(combine(node.right!!))
-            return result
+            fun combine(node: Node<T>) {
+                if (node.left != null) combine(node.left!!)
+                result.add(node.value)
+                if (node.right != null) combine(node.right!!)
+            }
+            if (root != null) combine(root!!)
+            iter = result.iterator()
         }
 
         /**
