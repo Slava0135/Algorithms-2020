@@ -234,7 +234,7 @@ fun sortAddresses(inputName: String, outputName: String) {
 fun sortTemperatures(inputName: String, outputName: String) {
     val low = -2730
     val high = 5000
-    val lines = File(inputName).readLines().map { it.replace(".", "").toInt() - low}.toIntArray()
+    val lines = File(inputName).readLines().map { it.replace(".", "").toInt() - low }.toIntArray()
     val sorted = countingSort(lines, high - low)
     save(outputName, sorted.map {
         val actual = it + low

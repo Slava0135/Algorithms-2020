@@ -1,7 +1,7 @@
 package lesson3
 
-import java.lang.IllegalStateException
 import java.util.*
+import kotlin.IllegalStateException
 import kotlin.math.max
 
 // attention: Comparable is supported but Comparator is not
@@ -164,6 +164,17 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
 
+        private val iter = (root?.let { combine(it) } ?: emptyList()).iterator()
+        private var last: T? = null
+
+        private fun combine(node: Node<T>): List<T> {
+            val result = mutableListOf<T>()
+            if (node.left != null) result.addAll(combine(node.left!!))
+            result.add(node.value)
+            if (node.right != null) result.addAll(combine(node.right!!))
+            return result
+        }
+
         /**
          * Проверка наличия следующего элемента
          *
@@ -174,10 +185,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          */
-        override fun hasNext(): Boolean {
-            // TODO
-            throw NotImplementedError()
-        }
+
+        override fun hasNext() = iter.hasNext()
 
         /**
          * Получение следующего элемента
@@ -193,8 +202,9 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun next(): T {
-            // TODO
-            throw NotImplementedError()
+            if (!iter.hasNext()) throw IllegalStateException()
+            last = iter.next()
+            return last!!
         }
 
         /**
@@ -210,8 +220,9 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Сложная
          */
         override fun remove() {
-            // TODO
-            throw NotImplementedError()
+            if (last == null) throw IllegalStateException()
+            remove(last)
+            last = null
         }
 
     }
