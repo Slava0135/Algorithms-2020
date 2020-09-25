@@ -200,7 +200,7 @@ abstract class AbstractBinarySearchTreeTest {
                     "BinarySearchTreeIterator doesn't traverse the tree correctly."
                 )
             }
-            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+            assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 binaryIter.next()
             }
             println("All clear!")
@@ -230,7 +230,7 @@ abstract class AbstractBinarySearchTreeTest {
             println("Control set: $controlSet")
             println("Removing element $toRemove from the tree through the iterator...")
             val iterator = binarySet.iterator()
-            assertFailsWith<IllegalStateException>("Something was supposedly removed before the iteration started") {
+            assertFailsWith<NoSuchElementException>("Something was supposedly removed before the iteration started") {
                 iterator.remove()
             }
             var counter = binarySet.size
@@ -241,7 +241,7 @@ abstract class AbstractBinarySearchTreeTest {
                 counter--
                 if (element == toRemove) {
                     iterator.remove()
-                    assertFailsWith<IllegalStateException>("BinarySearchTreeIterator.remove() was successfully called twice in a row.") {
+                    assertFailsWith<NoSuchElementException>("BinarySearchTreeIterator.remove() was successfully called twice in a row.") {
                         iterator.remove()
                     }
                 }

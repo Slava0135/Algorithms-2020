@@ -83,12 +83,12 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
     override fun remove(element: T): Boolean {
 
         fun findParent(start: Node<T>): Node<T>? {
-            if (element < start.value) {
+            if (element.compareTo(start.value) < 0) {
                 if (start.left == null) return null
                 if (start.left!!.value == element) return start
                 return findParent(start.left!!)
             }
-            if (element > start.value) {
+            if (element.compareTo(start.value) > 0) {
                 if (start.right == null) return null
                 if (start.right!!.value == element) return start
                 return findParent(start.right!!)
@@ -205,7 +205,6 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun next(): T {
-            if (!iter.hasNext()) throw IllegalStateException()
             last = iter.next()
             return last!!
         }
