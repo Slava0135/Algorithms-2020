@@ -1,6 +1,7 @@
 package lesson3
 
 import java.util.*
+import kotlin.ConcurrentModificationException
 import kotlin.IllegalStateException
 import kotlin.math.max
 
@@ -166,6 +167,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         private val iter: Iterator<T>
         private var last: T? = null
+        var expectedSize = size
 
         init {
             val result = mutableListOf<T>()
@@ -205,6 +207,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun next(): T {
+            checkForCmodification()
             last = iter.next()
             return last!!
         }
@@ -222,11 +225,15 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Сложная
          */
         override fun remove() {
-            if (last == null) throw IllegalStateException()
+            checkForCmodification()
             remove(last)
+            expectedSize--
             last = null
         }
 
+        private fun checkForCmodification() {
+            if (expectedSize != size) throw ConcurrentModificationException()
+        }
     }
 
     /**
