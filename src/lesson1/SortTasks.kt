@@ -35,6 +35,7 @@ import java.lang.Math.abs
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
+
 private fun <T> save(outputName: String, list: List<T>) {
     require(list.isNotEmpty())
     File(outputName).bufferedWriter().use {
@@ -48,6 +49,7 @@ private fun <T> save(outputName: String, list: List<T>) {
     }
 }
 
+// Time: O(N * log N), Memory: O(N)
 fun sortTimes(inputName: String, outputName: String) {
     class Time(line: String) : Comparable<Time> {
         val hours: Int
@@ -117,6 +119,8 @@ fun sortTimes(inputName: String, outputName: String) {
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
+
+// Time: O(N * log N), Memory: O(N)
 fun sortAddresses(inputName: String, outputName: String) {
     class Resident(val firstName: String, val secondName: String) : Comparable<Resident> {
         override fun toString() = firstName + " " + secondName
@@ -231,6 +235,8 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 99.5
  * 121.3
  */
+
+// Time: O(N + K), Memory: O(N + K)
 fun sortTemperatures(inputName: String, outputName: String) {
     val low = -2730
     val high = 5000
@@ -277,6 +283,8 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  * 2
  */
+
+// Time: O(N * log N), Memory: O(N)
 fun sortSequence(inputName: String, outputName: String) {
     val list = File(inputName).readLines().map { it.toInt() }
     val count = mutableMapOf<Int, Int>()
@@ -306,6 +314,8 @@ fun sortSequence(inputName: String, outputName: String) {
  *
  * Результат: second = [1 3 4 9 9 13 15 20 23 28]
  */
+
+// Time: O(N), Memory: O(N)
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
     var iOne = 0
     var iTwo = first.size

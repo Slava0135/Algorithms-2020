@@ -28,6 +28,8 @@ import java.io.File
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
+
+// Time: O(N), Memory: O(N)
 fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
     val numbers = File(inputName).readLines().map { it.toInt() }
     require(numbers.all { it > 0 })
@@ -103,6 +105,8 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
  * Общий комментарий: решение из Википедии для этой задачи принимается,
  * но приветствуется попытка решить её самостоятельно.
  */
+
+// Time: O(N), Memory: O(1)
 fun josephTask(menNumber: Int, choiceInterval: Int): Int {
     var result = 0
     for (i in 1..menNumber) {
@@ -122,6 +126,8 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * Если имеется несколько самых длинных общих подстрок одной длины,
  * вернуть ту из них, которая встречается раньше в строке first.
  */
+
+// Time: O(N * M), Memory: O(N * M)
 fun longestCommonSubstring(first: String, second: String): String {
     val grid = Array(first.length) { IntArray(second.length) { 0 } }
     for (j in grid[0].indices) {
@@ -159,6 +165,8 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Справка: простым считается число, которое делится нацело только на 1 и на себя.
  * Единица простым числом не считается.
  */
+
+// Time: O(N * log(log N)), Memory: O(N)
 fun calcPrimesNumber(limit: Int): Int {
     if (limit <= 1) return 0
     val marks = BooleanArray(limit + 1) { true }
