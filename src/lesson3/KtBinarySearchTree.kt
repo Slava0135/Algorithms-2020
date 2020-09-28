@@ -85,7 +85,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Средняя
      */
 
-    // Time: O(log N)
+    // Time: avg. O(log N), worst O(N)
     override fun remove(element: T): Boolean {
 
         fun findParent(start: Node<T>): Node<T>? {
