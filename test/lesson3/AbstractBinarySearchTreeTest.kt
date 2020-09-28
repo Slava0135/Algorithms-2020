@@ -4,6 +4,7 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.test.*
 import org.junit.jupiter.api.assertDoesNotThrow
+import kotlin.ConcurrentModificationException
 import kotlin.IllegalStateException
 import kotlin.NoSuchElementException
 
@@ -202,6 +203,18 @@ abstract class AbstractBinarySearchTreeTest {
             }
             assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 binaryIter.next()
+            }
+            assertFailsWith<ConcurrentModificationException> {
+                for (element in binarySet) {
+                    binarySet.remove(element)
+                }
+            }
+            assertFailsWith<ConcurrentModificationException> {
+                val first = binarySet.iterator()
+                first.next()
+                for (elem in binarySet) {
+                    first.remove()
+                }
             }
             println("All clear!")
         }
