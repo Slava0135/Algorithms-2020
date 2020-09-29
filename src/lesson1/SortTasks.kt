@@ -122,6 +122,7 @@ fun sortTimes(inputName: String, outputName: String) {
 
 // Time: avg./worst O(N * log N), Memory: O(N)
 fun sortAddresses(inputName: String, outputName: String) {
+
     class Resident(val firstName: String, val secondName: String) : Comparable<Resident> {
         override fun toString() = firstName + " " + secondName
         override fun compareTo(other: Resident): Int {
@@ -160,24 +161,6 @@ fun sortAddresses(inputName: String, outputName: String) {
             if (number < other.number) return -1
 
             return 0
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Location
-
-            if (name != other.name) return false
-            if (number != other.number) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = name.hashCode()
-            result = 31 * result + number
-            return result
         }
     }
 

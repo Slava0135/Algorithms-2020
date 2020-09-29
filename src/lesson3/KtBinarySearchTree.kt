@@ -21,6 +21,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
     private var operations = 0
     override var size = 0
+        private set
 
     private fun find(value: T): Node<T>? =
         root?.let { find(it, value) }
@@ -269,6 +270,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         var root = tree.root
         override var size = 0
+            private set
+        private var operations = 0
 
         private fun isValid(element: T) {
             require(from?.compareTo(element) ?: 0 <= 0 && to?.compareTo(element) ?: 1 > 0)
@@ -276,6 +279,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         override fun add(element: T): Boolean {
             isValid(element)
+            operations++
             return if (tree.add(element)) {
                 size++
                 true
@@ -284,6 +288,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         override fun remove(element: T): Boolean {
             isValid(element)
+            operations++
             return if (tree.remove(element)) {
                 size--
                 true
@@ -292,33 +297,58 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         inner class SubSetIterator internal constructor() : MutableIterator<T> {
 
-            private val iter: Iterator<T>
+            private val queue = ArrayDeque<Node<T>>()
             private var last: T? = null
-            var expectedSize = size
+            var expectedOperations = operations
 
             init {
-                val result = mutableListOf<T>()
-                fun combine(node: Node<T>) {
-                    if (node.left != null) combine(node.left!!)
-                    result.add(node.value)
-                    if (node.right != null) combine(node.right!!)
+                if (root != null) {
+                    queue.addFirst(root!!)
+                    var left = root!!
+                    while (left.left != null) {
+                        left = left.left!!
+                        queue.addFirst(left)
+                    }
                 }
-                if (root != null) combine(root!!)
-                iter = result.iterator()
             }
 
-            override fun hasNext(): Boolean {
-                TODO("Not yet implemented")
-            }
+            override fun hasNext() = queue.isNotEmpty()
 
             override fun next(): T {
-                TODO("Not yet implemented")
+                if (queue.isEmpty()) throw NoSuchElementException()
+
+                val lastNode = queue.first()
+                queue.removeFirst()
+
+                last = lastNode.value
+
+                if (lastNode.right != null) {
+                    queue.addFirst(lastNode.right!!)
+                    lastNode.right!!.left?.let {
+                        var left = lastNode.right!!.left!!
+                        queue.addFirst(left)
+                        while (left.left != null) {
+                            left = left.left!!
+                            queue.addFirst(left)
+                        }
+                    }
+                }
+
+                checkForCmodification()
+                return last!!
             }
 
             override fun remove() {
-                TODO("Not yet implemented")
+                if (last == null) throw NoSuchElementException()
+                checkForCmodification()
+                expectedOperations++
+                remove(last)
+                last = null
             }
 
+            private fun checkForCmodification() {
+                if (expectedOperations != operations) throw ConcurrentModificationException()
+            }
         }
 
         override fun iterator(): MutableIterator<T> = SubSetIterator()
