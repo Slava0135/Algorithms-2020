@@ -174,7 +174,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         private val queue = ArrayDeque<Node<T>>()
         private var last: T? = null
-        var expectedOperations = operations
+        private var expectedOperations = operations
 
         init {
             if (root != null) {
@@ -268,18 +268,15 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         val to: T?
     ) : AbstractMutableSet<T>(), SortedSet<T> {
 
-        var root = tree.root
-        override var size = 0
+        override var size = iterator().asSequence().count()
             private set
-        private var operations = 0
 
         private fun isValid(element: T) {
-            require(from?.compareTo(element) ?: 0 <= 0 && to?.compareTo(element) ?: 1 > 0)
+            require((from == null || from.compareTo(element) <= 0) && (to == null || to.compareTo(element) > 0))
         }
 
         override fun add(element: T): Boolean {
             isValid(element)
-            operations++
             return if (tree.add(element)) {
                 size++
                 true
@@ -288,7 +285,6 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         override fun remove(element: T): Boolean {
             isValid(element)
-            operations++
             return if (tree.remove(element)) {
                 size--
                 true
@@ -299,12 +295,12 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
             private val queue = ArrayDeque<Node<T>>()
             private var last: T? = null
-            var expectedOperations = operations
+            private var expectedOperations = tree.operations
 
             init {
-                if (root != null) {
-                    queue.addFirst(root!!)
-                    var left = root!!
+                if (tree.root != null) {
+                    queue.addFirst(tree.root!!)
+                    var left = tree.root!!
                     while (left.left != null) {
                         left = left.left!!
                         queue.addFirst(left)
@@ -347,7 +343,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             }
 
             private fun checkForCmodification() {
-                if (expectedOperations != operations) throw ConcurrentModificationException()
+                if (expectedOperations != tree.operations) throw ConcurrentModificationException()
             }
         }
 
@@ -355,11 +351,21 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         override fun comparator(): Comparator<in T>? = null
 
-        override fun subSet(fromElement: T, toElement: T): SortedSet<T> = TODO()
+        override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
+            require(from == null || from.compareTo(fromElement) <= 0)
+            require(to == null || to.compareTo(toElement) >= 0)
+            return SubSet(tree, fromElement, toElement)
+        }
 
-        override fun headSet(toElement: T): SortedSet<T> = TODO()
+        override fun headSet(toElement: T): SortedSet<T> {
+            require(to == null || to.compareTo(toElement) >= 0)
+            return SubSet(tree, null, toElement)
+        }
 
-        override fun tailSet(fromElement: T): SortedSet<T> = TODO()
+        override fun tailSet(fromElement: T): SortedSet<T> {
+            require(from == null || from.compareTo(fromElement) <= 0)
+            return SubSet(tree, fromElement, null)
+        }
 
         override fun first(): T {
             TODO("Not yet implemented")
@@ -388,9 +394,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Очень сложная (в том случае, если спецификация реализуется в полном объёме)
      */
 
-    override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
-        TODO()
-    }
+    override fun subSet(fromElement: T, toElement: T): SortedSet<T> = SubSet(this, fromElement, toElement)
 
     /**
      * Подмножество всех элементов строго меньше заданного
@@ -406,9 +410,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      *
      * Сложная
      */
-    override fun headSet(toElement: T): SortedSet<T> {
-        TODO()
-    }
+    override fun headSet(toElement: T): SortedSet<T> = SubSet(this, null, toElement)
 
     /**
      * Подмножество всех элементов нестрого больше заданного
@@ -424,9 +426,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      *
      * Сложная
      */
-    override fun tailSet(fromElement: T): SortedSet<T> {
-        TODO()
-    }
+    override fun tailSet(fromElement: T): SortedSet<T> = SubSet(this, fromElement, null)
 
     override fun first(): T {
         var current: Node<T> = root ?: throw NoSuchElementException()
