@@ -287,6 +287,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             } else false
         }
 
+        override fun contains(element: T) = isValid(element) && tree.contains(element)
+
         fun isValid(element: T): Boolean = isAbove(element) && isBelow(element)
 
         fun isBelow(element: T) = to == null || to.compareTo(element) > 0
@@ -329,10 +331,13 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                         node = goRightUntilAbove(node.left!!)
                         if (node == null) {
                             break
-                        } else continue
+                        } else {
+                            queue.addFirst(node)
+                        }
+                    } else {
+                        queue.addFirst(node.left!!)
+                        node = node.left!!
                     }
-                    queue.addFirst(node.left!!)
-                    node = node.left!!
                 }
             }
 
