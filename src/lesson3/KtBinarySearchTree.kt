@@ -368,11 +368,88 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         }
 
         override fun first(): T {
-            TODO("Not yet implemented")
+
+            fun goRight(start: Node<T>): Node<T>? {
+                var next = start
+                while (next.right != null && (to == null || next.right!!.value.compareTo(to) < 0)) {
+                    if (next.right!!.value.compareTo(from!!) >= 0) {
+                        return next.right!!
+                    } else {
+                        next = next.right!!
+                    }
+                }
+                return null
+            }
+
+            if (tree.root == null) throw NoSuchElementException()
+            var node = tree.root
+            if (from != null && node!!.value.compareTo(from) < 0) {
+                if (node.right == null) {
+                    throw NoSuchElementException()
+                } else {
+                    val right = goRight(node) ?: throw NoSuchElementException()
+                    node = right
+                }
+            }
+
+            while (node!!.left != null) {
+                if (from != null && node.left!!.value.compareTo(from) < 0) {
+                    val right = goRight(node.left!!)
+                    if (right != null) {
+                        node = right
+                    } else {
+                        break
+                    }
+                } else {
+                    node = node.left
+                }
+            }
+
+            if (to != null && node.value.compareTo(to) >= 0) throw NoSuchElementException()
+            return node.value
         }
 
         override fun last(): T {
-            TODO("Not yet implemented")
+
+            fun goLeft(start: Node<T>): Node<T>? {
+                var next = start
+                while (next.left != null && (from == null || next.left!!.value.compareTo(from) >= 0)) {
+                    if (next.left!!.value.compareTo(to!!) < 0) {
+                        return next.left!!
+                    } else {
+                        next = next.left!!
+                    }
+                }
+                return null
+            }
+
+            if (tree.root == null) throw NoSuchElementException()
+            var node = tree.root
+            if (to != null && node!!.value.compareTo(to) >= 0) {
+                if (node.left == null) {
+                    throw NoSuchElementException()
+                } else {
+                    val left = goLeft(node) ?: throw NoSuchElementException()
+                    node = left
+                }
+            }
+
+            while (node!!.right != null) {
+                if (to != null && node.right!!.value.compareTo(to) >= 0) {
+                    val left = goLeft(node.right!!)
+                    if (left != null) {
+                        node = left
+                    } else {
+
+                        break
+                    }
+                } else {
+                    node = node.right
+                }
+            }
+
+            if (from != null && node.value.compareTo(from) < 0) throw NoSuchElementException()
+            return node.value
         }
 
     }
