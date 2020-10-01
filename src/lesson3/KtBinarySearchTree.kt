@@ -268,23 +268,18 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         val to: T?
     ) : AbstractMutableSet<T>(), SortedSet<T> {
 
-        override var size = iterator().asSequence().count()
+        override var size = -1
             private set
+            get() = iterator().asSequence().count()
 
         override fun add(element: T): Boolean {
             require(isValid(element))
-            return if (tree.add(element)) {
-                size++
-                true
-            } else false
+            return tree.add(element)
         }
 
         override fun remove(element: T): Boolean {
             require(isValid(element))
-            return if (tree.remove(element)) {
-                size--
-                true
-            } else false
+            return tree.remove(element)
         }
 
         override fun contains(element: T) = isValid(element) && tree.contains(element)
