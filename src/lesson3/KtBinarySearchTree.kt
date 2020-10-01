@@ -322,13 +322,35 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             private var last: T? = null
             private var expectedOperations = tree.operations
 
+            private fun addAllLeft(start: Node<T>) {
+                var node: Node<T>? = start
+                while (node!!.left != null) {
+                    if (!isAbove(node.left!!.value)) {
+                        node = goRightUntilAbove(node.left!!)
+                        if (node == null) {
+                            break
+                        } else continue
+                    }
+                    queue.addFirst(node.left!!)
+                    node = node.left!!
+                }
+            }
+
             init {
                 if (tree.root != null) {
-                    queue.addFirst(tree.root!!)
-                    var left = tree.root!!
-                    while (left.left != null) {
-                        left = left.left!!
-                        queue.addFirst(left)
+                    val root = tree.root!!
+                    val node = if (isAbove(root.value)) {
+                        if (isBelow(root.value)) {
+                            root
+                        } else {
+                            goLeftUntilBelow(root)
+                        }
+                    } else {
+                        goRightUntilAbove(root)
+                    }
+                    if (node != null) {
+                        queue.addFirst(node)
+                        addAllLeft(node)
                     }
                 }
             }
@@ -344,13 +366,14 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 last = lastNode.value
 
                 if (lastNode.right != null) {
-                    queue.addFirst(lastNode.right!!)
-                    lastNode.right!!.left?.let {
-                        var left = lastNode.right!!.left!!
-                        queue.addFirst(left)
-                        while (left.left != null) {
-                            left = left.left!!
-                            queue.addFirst(left)
+                    if (isBelow(lastNode.right!!.value)) {
+                        queue.addFirst(lastNode.right!!)
+                        addAllLeft(lastNode.right!!)
+                    } else {
+                        val node = goLeftUntilBelow(lastNode.right!!)
+                        if (node != null) {
+                            queue.addFirst(node)
+                            addAllLeft(node)
                         }
                     }
                 }
