@@ -272,11 +272,12 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             private set
             get() = iterator().asSequence().count()
 
+        // Time: avg. O(log N), worst O(N)
         override fun add(element: T): Boolean {
             require(isValid(element))
             return tree.add(element)
         }
-
+        // Time: avg. O(log N), worst O(N)
         override fun remove(element: T): Boolean {
             require(isValid(element))
             return tree.remove(element)

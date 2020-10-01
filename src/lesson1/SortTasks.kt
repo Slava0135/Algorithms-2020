@@ -219,7 +219,7 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 
-// Time: avg./worst O(N + K), Memory: O(N + K)
+// Time: avg./worst O(low + high), Memory: O(low + high)
 fun sortTemperatures(inputName: String, outputName: String) {
     val low = -2730
     val high = 5000
@@ -267,7 +267,7 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 
-// Time: avg./worst O(N * log N), Memory: O(N)
+// Time: avg./worst O(N), Memory: O(N)
 fun sortSequence(inputName: String, outputName: String) {
     val list = File(inputName).readLines().map { it.toInt() }
     val count = mutableMapOf<Int, Int>()
