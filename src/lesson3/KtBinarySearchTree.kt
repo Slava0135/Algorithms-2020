@@ -339,18 +339,17 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             init {
                 if (tree.root != null) {
                     val root = tree.root!!
-                    val node = if (isAbove(root.value)) {
-                        if (isBelow(root.value)) {
-                            root
-                        } else {
-                            goLeftUntilBelow(root)
+                    var node = root
+                    while (true) {
+                        if (isValid(node.value)) {
+                            queue.addFirst(node)
+                            addAllLeft(node)
+                            break
+                        } else if (!isBelow(node.value)) {
+                            node = goLeftUntilBelow(node) ?: break
+                        } else if (!isAbove(node.value)) {
+                            node = goRightUntilAbove(node) ?: break
                         }
-                    } else {
-                        goRightUntilAbove(root)
-                    }
-                    if (node != null) {
-                        queue.addFirst(node)
-                        addAllLeft(node)
                     }
                 }
             }
