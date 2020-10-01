@@ -272,8 +272,11 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             private set
 
         private fun isValid(element: T) {
-            require((from == null || from.compareTo(element) <= 0) && (to == null || to.compareTo(element) > 0))
+            require(isAbove(element) && isBelow(element))
         }
+
+        private fun isBelow(element: T) = to == null || to.compareTo(element) > 0
+        private fun isAbove(element: T) = from == null || from.compareTo(element) <= 0
 
         override fun add(element: T): Boolean {
             isValid(element)
@@ -352,6 +355,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         override fun comparator(): Comparator<in T>? = null
 
         override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
+            require(fromElement.compareTo(toElement) <= 0)
             require(from == null || from.compareTo(fromElement) <= 0)
             require(to == null || to.compareTo(toElement) >= 0)
             return SubSet(tree, fromElement, toElement)
@@ -359,11 +363,13 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         override fun headSet(toElement: T): SortedSet<T> {
             require(to == null || to.compareTo(toElement) >= 0)
+            require(isAbove(toElement))
             return SubSet(tree, null, toElement)
         }
 
         override fun tailSet(fromElement: T): SortedSet<T> {
             require(from == null || from.compareTo(fromElement) <= 0)
+            require(isBelow(fromElement))
             return SubSet(tree, fromElement, null)
         }
 
@@ -371,8 +377,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
             fun goRight(start: Node<T>): Node<T>? {
                 var next = start
-                while (next.right != null && (to == null || next.right!!.value.compareTo(to) < 0)) {
-                    if (next.right!!.value.compareTo(from!!) >= 0) {
+                while (next.right != null) {
+                    if (isAbove(next.right!!.value)) {
                         return next.right!!
                     } else {
                         next = next.right!!
@@ -382,8 +388,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             }
 
             if (tree.root == null) throw NoSuchElementException()
-            var node = tree.root
-            if (from != null && node!!.value.compareTo(from) < 0) {
+            var node = tree.root!!
+            if (!isAbove(node.value)) {
                 if (node.right == null) {
                     throw NoSuchElementException()
                 } else {
@@ -392,8 +398,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 }
             }
 
-            while (node!!.left != null) {
-                if (from != null && node.left!!.value.compareTo(from) < 0) {
+            while (node.left != null) {
+                if (!isAbove(node.left!!.value)) {
                     val right = goRight(node.left!!)
                     if (right != null) {
                         node = right
@@ -401,11 +407,11 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                         break
                     }
                 } else {
-                    node = node.left
+                    node = node.left!!
                 }
             }
 
-            if (to != null && node.value.compareTo(to) >= 0) throw NoSuchElementException()
+            if (!isAbove(node.value) || !isBelow(node.value)) throw NoSuchElementException()
             return node.value
         }
 
@@ -413,8 +419,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
             fun goLeft(start: Node<T>): Node<T>? {
                 var next = start
-                while (next.left != null && (from == null || next.left!!.value.compareTo(from) >= 0)) {
-                    if (next.left!!.value.compareTo(to!!) < 0) {
+                while (next.left != null) {
+                    if (isBelow(next.left!!.value)) {
                         return next.left!!
                     } else {
                         next = next.left!!
@@ -424,8 +430,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             }
 
             if (tree.root == null) throw NoSuchElementException()
-            var node = tree.root
-            if (to != null && node!!.value.compareTo(to) >= 0) {
+            var node = tree.root!!
+            if (!isBelow(node.value)) {
                 if (node.left == null) {
                     throw NoSuchElementException()
                 } else {
@@ -434,21 +440,20 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 }
             }
 
-            while (node!!.right != null) {
-                if (to != null && node.right!!.value.compareTo(to) >= 0) {
+            while (node.right != null) {
+                if (!isBelow(node.value)) {
                     val left = goLeft(node.right!!)
                     if (left != null) {
                         node = left
                     } else {
-
                         break
                     }
                 } else {
-                    node = node.right
+                    node = node.right!!
                 }
             }
 
-            if (from != null && node.value.compareTo(from) < 0) throw NoSuchElementException()
+            if (!isAbove(node.value) || !isBelow(node.value)) throw NoSuchElementException()
             return node.value
         }
 
@@ -471,7 +476,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Очень сложная (в том случае, если спецификация реализуется в полном объёме)
      */
 
-    override fun subSet(fromElement: T, toElement: T): SortedSet<T> = SubSet(this, fromElement, toElement)
+    override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
+        require(fromElement.compareTo(toElement) <= 0)
+        return SubSet(this, fromElement, toElement)
+    }
 
     /**
      * Подмножество всех элементов строго меньше заданного
