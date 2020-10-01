@@ -460,7 +460,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             }
 
             while (node.right != null) {
-                if (!isBelow(node.value)) {
+                if (!isBelow(node.right!!.value)) {
                     val left = goLeftUntilBelow(node.right!!)
                     if (left != null) {
                         node = left
