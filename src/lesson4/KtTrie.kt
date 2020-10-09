@@ -68,18 +68,18 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
                 }
                 current = current.children[char] ?: return null
             }
-            return if (current == lastFork && current.children.size > 1) {
+            if (0.toChar() !in current.children.keys) return null
+
+            return if (current.children.size > 1) {
                 Triple(current, null, null)
             } else Triple(current, lastFork, lastForked)
         }
 
         val (current, lastFork, lastForked) = findNodeAndLastFork(element) ?: return false
-        if (current.children.remove(0.toChar()) != null) {
-            lastFork?.children?.remove(lastForked)
-            size--
-            return true
-        }
-        return false
+        current.children.remove(0.toChar())
+        lastFork?.children?.remove(lastForked)
+        size--
+        return true
     }
 
     /**
@@ -151,8 +151,8 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
 
 fun main() {
     val a = KtTrie()
-    a.addAll(listOf("de", "deab"))
+    a.addAll(listOf("fc", "fcfbehhagfgdg"))
     println(a)
-    a.remove("de")
+    a.remove("fc")
     println(a)
 }
