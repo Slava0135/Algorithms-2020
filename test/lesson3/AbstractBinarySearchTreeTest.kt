@@ -334,6 +334,21 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("All clear!")
         }
+        val initialSet = create()
+        for (i in 1..30) {
+            initialSet.add(random.nextInt(100))
+        }
+        val subSet = initialSet.subSet(0, 100)
+        assertFailsWith<ConcurrentModificationException> {
+            for (element in subSet) {
+                initialSet.remove(element)
+            }
+        }
+        assertFailsWith<ConcurrentModificationException> {
+            for (element in subSet) {
+                subSet.remove(element)
+            }
+        }
     }
 
     protected fun doSubSetRelationTest() {

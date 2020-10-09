@@ -360,6 +360,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             override fun hasNext() = queue.isNotEmpty()
 
             override fun next(): T {
+                checkForCmodification()
                 if (queue.isEmpty()) throw NoSuchElementException()
 
                 val lastNode = queue.first()
@@ -379,8 +380,6 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                         }
                     }
                 }
-
-                checkForCmodification()
                 return last!!
             }
 

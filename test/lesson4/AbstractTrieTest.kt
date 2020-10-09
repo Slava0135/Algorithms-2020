@@ -3,6 +3,7 @@ package lesson4
 import java.util.*
 import kotlin.math.abs
 import ru.spbstu.kotlin.generate.util.nextString
+import kotlin.ConcurrentModificationException
 import kotlin.NoSuchElementException
 import kotlin.test.*
 
@@ -168,6 +169,12 @@ abstract class AbstractTrieTest {
                     controlSet.contains(element),
                     "Trie set has the element $element that is not in control set."
                 )
+            }
+            assertFailsWith<ConcurrentModificationException> {
+                for (element in trieSet) {
+                    trieSet.remove(trieSet.first())
+                }
+
             }
             println("All clear!")
         }
