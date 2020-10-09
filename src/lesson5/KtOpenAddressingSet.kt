@@ -13,6 +13,12 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
     private val storage = Array<Any?>(capacity) { null }
 
     override var size: Int = 0
+        private set(value) {
+            operations++
+            field = value
+        }
+
+    private var operations = 0
 
     /**
      * Индекс в таблице, начиная с которого следует искать данный элемент
@@ -77,6 +83,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      */
     private object DELETED
 
+    // Time: avg. O(1), worst O(capacity)
     override fun remove(element: T): Boolean {
         val startingIndex = element.startingIndex()
         var index = startingIndex
@@ -106,7 +113,43 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя (сложная, если поддержан и remove тоже)
      */
-    override fun iterator(): MutableIterator<T> {
-        TODO("not implemented")
+
+    override fun iterator(): MutableIterator<T> = Iterator()
+
+    private inner class Iterator : MutableIterator<T> {
+
+        var expectedOperations = operations
+
+        var last: T? = null
+        var index = 0
+        var count = 0
+
+        override fun hasNext() = count < size
+
+        override fun next(): T {
+            checkForCmodification()
+            if (!hasNext()) throw NoSuchElementException()
+            while (storage[index] == null || storage[index] == DELETED) {
+                index++
+            }
+            last = storage[index] as T
+            count++
+            index++
+            return last as T
+        }
+
+        override fun remove() {
+            checkForCmodification()
+            if (last == null) throw IllegalStateException()
+            storage[index - 1] = DELETED
+            last = null
+            size--
+            count--
+            expectedOperations++
+        }
+
+        fun checkForCmodification() {
+            if (expectedOperations != operations) throw ConcurrentModificationException()
+        }
     }
 }

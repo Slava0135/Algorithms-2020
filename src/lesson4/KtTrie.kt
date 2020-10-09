@@ -56,6 +56,7 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
         return modified
     }
 
+    // Time: avg. O(log N), worst O(N)
     override fun remove(element: String): Boolean {
         fun findNodeAndLastFork(element: String): Triple<Node, Node?, Char?>? {
             var current = root
