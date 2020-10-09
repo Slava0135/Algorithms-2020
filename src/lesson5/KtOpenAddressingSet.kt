@@ -51,7 +51,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         val startingIndex = element.startingIndex()
         var index = startingIndex
         var current = storage[index]
-        while (current != null) {
+        while (current != null && current != DELETED) {
             if (current == element) {
                 return false
             }
@@ -75,8 +75,25 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя
      */
+    private object DELETED
+
     override fun remove(element: T): Boolean {
-        TODO("not implemented")
+        val startingIndex = element.startingIndex()
+        var index = startingIndex
+        var current = storage[index]
+        while (current != null) {
+            if (current == element) {
+                storage[index] = DELETED
+                size--
+                return true
+            }
+            index = (index + 1) % capacity
+            if (startingIndex == index) {
+                return false
+            }
+            current = storage[index]
+        }
+        return false
     }
 
     /**
