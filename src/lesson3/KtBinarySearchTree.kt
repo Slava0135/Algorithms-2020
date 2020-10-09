@@ -215,6 +215,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          * Средняя
          */
         override fun next(): T {
+            checkForCmodification()
             if (queue.isEmpty()) throw NoSuchElementException()
 
             val lastNode = queue.first()
@@ -234,7 +235,6 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 }
             }
 
-            checkForCmodification()
             return last!!
         }
 

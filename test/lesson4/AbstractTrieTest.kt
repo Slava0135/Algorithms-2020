@@ -3,6 +3,7 @@ package lesson4
 import java.util.*
 import kotlin.math.abs
 import ru.spbstu.kotlin.generate.util.nextString
+import kotlin.NoSuchElementException
 import kotlin.test.*
 
 abstract class AbstractTrieTest {
@@ -104,7 +105,7 @@ abstract class AbstractTrieTest {
                 controlSet.isEmpty(),
                 "TrieIterator doesn't traverse the entire set."
             )
-            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+            assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 trieIter.next()
             }
             println("All clear!")

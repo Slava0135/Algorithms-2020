@@ -57,21 +57,20 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
     }
 
     override fun remove(element: String): Boolean {
-        fun findNodeAndLastFork(element: String): Triple<Node, Node?, Char>? {
+        fun findNodeAndLastFork(element: String): Triple<Node, Node?, Char?>? {
             var current = root
             var lastFork: Node? = null
-            var lastForked = element.first()
+            var lastForked: Char? = null
             for (char in element) {
-                val size = current.children.size
-                if (size > 1) {
+                if (current.children.size > 1) {
                     lastFork = current
-                }
-                current = current.children[char] ?: return null
-                if (size > 1) {
                     lastForked = char
                 }
+                current = current.children[char] ?: return null
             }
-            return Triple(current, lastFork, lastForked)
+            return if (current == lastFork && current.children.size > 1) {
+                Triple(current, null, null)
+            } else Triple(current, lastFork, lastForked)
         }
 
         val (current, lastFork, lastForked) = findNodeAndLastFork(element) ?: return false
@@ -94,31 +93,53 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
 
     private inner class TrieIterator : MutableIterator<String> {
 
-        val path = ArrayDeque<Node>()
-        var last: Node? = null
+        var line = StringBuilder()
+        val queue = ArrayDeque<Pair<Node, String>>()
+
+        var last: String? = null
         var expectedOperations = operations
 
         init {
-            path.addFirst(root)
             var left = root
             while (left.children.keys.isNotEmpty()) {
+                for ((char, node) in left.children.entries.drop(1)) {
+                    queue.addFirst(Pair(node, line.toString() + char))
+                }
+                line.append(left.children.keys.first())
                 left = left.children.values.first()
-                path.add(left)
             }
+            if (left != root) queue.addFirst(Pair(left, line.toString()))
         }
 
-        override fun hasNext() = path.isNotEmpty()
+        override fun hasNext() = queue.isNotEmpty()
 
         override fun next(): String {
-            if (path.isEmpty()) throw NoSuchElementException()
             checkForCmodification()
-            return ""
+            if (queue.isEmpty()) throw NoSuchElementException()
+
+            var (left, string) = queue.first()
+            queue.removeFirst()
+            if (string.last() == 0.toChar()) {
+                last = string.dropLast(1)
+                return last!!
+            }
+            line = StringBuilder(string)
+            while (left.children.keys.isNotEmpty()) {
+                for ((char, node) in left.children.entries.drop(1)) {
+                    queue.addFirst(Pair(node, line.toString() + char))
+                }
+                line.append(left.children.keys.first())
+                left = left.children.values.first()
+            }
+            last = line.toString().dropLast(1)
+            return last!!
         }
 
         override fun remove() {
             checkForCmodification()
             if (last == null) throw IllegalStateException()
-
+            expectedOperations++
+            remove(last)
             last = null
         }
 
@@ -126,5 +147,12 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             if (expectedOperations != operations) throw ConcurrentModificationException()
         }
     }
+}
 
+fun main() {
+    val a = KtTrie()
+    a.addAll(listOf("de", "deab"))
+    println(a)
+    a.remove("de")
+    println(a)
 }
