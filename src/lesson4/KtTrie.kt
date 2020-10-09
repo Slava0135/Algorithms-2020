@@ -149,11 +149,3 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
         }
     }
 }
-
-fun main() {
-    val a = KtTrie()
-    a.addAll(listOf("fc", "fcfbehhagfgdg"))
-    println(a)
-    a.remove("fc")
-    println(a)
-}
