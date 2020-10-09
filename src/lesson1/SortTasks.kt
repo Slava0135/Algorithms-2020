@@ -219,7 +219,7 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 
-// Time: avg./worst O(low + high), Memory: O(low + high)
+// Time: avg./worst O(high - low), Memory: O(low + high)
 fun sortTemperatures(inputName: String, outputName: String) {
     val low = -2730
     val high = 5000

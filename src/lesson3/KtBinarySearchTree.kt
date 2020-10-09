@@ -21,7 +21,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
     private var operations = 0
     override var size = 0
-        private set
+        private set(value) {
+            operations++
+            field = value
+        }
 
     private fun find(value: T): Node<T>? =
         root?.let { find(it, value) }
@@ -51,7 +54,6 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Пример
      */
     override fun add(element: T): Boolean {
-        operations++
         val closest = find(element)
         val comparison = if (closest == null) -1 else element.compareTo(closest.value)
         if (comparison == 0) {
@@ -122,7 +124,6 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             return successor
         }
 
-        operations++
         if (root == null) return false
 
         if (root!!.value == element) {
@@ -277,6 +278,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             require(isValid(element))
             return tree.add(element)
         }
+
         // Time: avg. O(log N), worst O(N)
         override fun remove(element: T): Boolean {
             require(isValid(element))
@@ -285,15 +287,15 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         override fun contains(element: T) = isValid(element) && tree.contains(element)
 
-        fun isValid(element: T): Boolean = isAbove(element) && isBelow(element)
+        fun isValid(element: T): Boolean = isAboveFloor(element) && isBelowCeil(element)
 
-        fun isBelow(element: T) = to == null || to.compareTo(element) > 0
-        fun isAbove(element: T) = from == null || from.compareTo(element) <= 0
+        fun isBelowCeil(element: T) = to == null || to.compareTo(element) > 0
+        fun isAboveFloor(element: T) = from == null || from.compareTo(element) <= 0
 
-        fun goRightUntilAbove(start: Node<T>): Node<T>? {
+        fun goRightUntilAboveFloor(start: Node<T>): Node<T>? {
             var next = start
             while (next.right != null) {
-                if (isAbove(next.right!!.value)) {
+                if (isAboveFloor(next.right!!.value)) {
                     return next.right!!
                 } else {
                     next = next.right!!
@@ -302,10 +304,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             return null
         }
 
-        fun goLeftUntilBelow(start: Node<T>): Node<T>? {
+        fun goLeftUntilBelowCeil(start: Node<T>): Node<T>? {
             var next = start
             while (next.left != null) {
-                if (isBelow(next.left!!.value)) {
+                if (isBelowCeil(next.left!!.value)) {
                     return next.left!!
                 } else {
                     next = next.left!!
@@ -323,8 +325,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             private fun addAllLeft(start: Node<T>) {
                 var node: Node<T>? = start
                 while (node!!.left != null) {
-                    if (!isAbove(node.left!!.value)) {
-                        node = goRightUntilAbove(node.left!!)
+                    if (!isAboveFloor(node.left!!.value)) {
+                        node = goRightUntilAboveFloor(node.left!!)
                         if (node == null) {
                             break
                         } else {
@@ -346,10 +348,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                             queue.addFirst(node)
                             addAllLeft(node)
                             break
-                        } else if (!isBelow(node.value)) {
-                            node = goLeftUntilBelow(node) ?: break
-                        } else if (!isAbove(node.value)) {
-                            node = goRightUntilAbove(node) ?: break
+                        } else if (!isBelowCeil(node.value)) {
+                            node = goLeftUntilBelowCeil(node) ?: break
+                        } else if (!isAboveFloor(node.value)) {
+                            node = goRightUntilAboveFloor(node) ?: break
                         }
                     }
                 }
@@ -366,11 +368,11 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 last = lastNode.value
 
                 if (lastNode.right != null) {
-                    if (isBelow(lastNode.right!!.value)) {
+                    if (isBelowCeil(lastNode.right!!.value)) {
                         queue.addFirst(lastNode.right!!)
                         addAllLeft(lastNode.right!!)
                     } else {
-                        val node = goLeftUntilBelow(lastNode.right!!)
+                        val node = goLeftUntilBelowCeil(lastNode.right!!)
                         if (node != null) {
                             queue.addFirst(node)
                             addAllLeft(node)
@@ -408,31 +410,31 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         override fun headSet(toElement: T): SortedSet<T> {
             require(to == null || to.compareTo(toElement) >= 0)
-            require(isAbove(toElement))
+            require(isAboveFloor(toElement))
             return SubSet(tree, null, toElement)
         }
 
         override fun tailSet(fromElement: T): SortedSet<T> {
             require(from == null || from.compareTo(fromElement) <= 0)
-            require(isBelow(fromElement))
+            require(isBelowCeil(fromElement))
             return SubSet(tree, fromElement, null)
         }
 
         override fun first(): T {
             if (tree.root == null) throw NoSuchElementException()
             var node = tree.root!!
-            if (!isAbove(node.value)) {
+            if (!isAboveFloor(node.value)) {
                 if (node.right == null) {
                     throw NoSuchElementException()
                 } else {
-                    val right = goRightUntilAbove(node) ?: throw NoSuchElementException()
+                    val right = goRightUntilAboveFloor(node) ?: throw NoSuchElementException()
                     node = right
                 }
             }
 
             while (node.left != null) {
-                if (!isAbove(node.left!!.value)) {
-                    val right = goRightUntilAbove(node.left!!)
+                if (!isAboveFloor(node.left!!.value)) {
+                    val right = goRightUntilAboveFloor(node.left!!)
                     if (right != null) {
                         node = right
                     } else {
@@ -450,18 +452,18 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         override fun last(): T {
             if (tree.root == null) throw NoSuchElementException()
             var node = tree.root!!
-            if (!isBelow(node.value)) {
+            if (!isBelowCeil(node.value)) {
                 if (node.left == null) {
                     throw NoSuchElementException()
                 } else {
-                    val left = goLeftUntilBelow(node) ?: throw NoSuchElementException()
+                    val left = goLeftUntilBelowCeil(node) ?: throw NoSuchElementException()
                     node = left
                 }
             }
 
             while (node.right != null) {
-                if (!isBelow(node.right!!.value)) {
-                    val left = goLeftUntilBelow(node.right!!)
+                if (!isBelowCeil(node.right!!.value)) {
+                    val left = goLeftUntilBelowCeil(node.right!!)
                     if (left != null) {
                         node = left
                     } else {

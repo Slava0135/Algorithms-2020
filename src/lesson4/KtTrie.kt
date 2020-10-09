@@ -9,10 +9,14 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
         val children: MutableMap<Char, Node> = linkedMapOf()
     }
 
+    private var operations = 0
     private var root = Node()
 
     override var size: Int = 0
-        private set
+        private set(value) {
+            operations++
+            field = value
+        }
 
     override fun clear() {
         root.children.clear()
@@ -53,8 +57,26 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
     }
 
     override fun remove(element: String): Boolean {
-        val current = findNode(element) ?: return false
+        fun findNodeAndLastFork(element: String): Triple<Node, Node?, Char>? {
+            var current = root
+            var lastFork: Node? = null
+            var lastForked = element.first()
+            for (char in element) {
+                val size = current.children.size
+                if (size > 1) {
+                    lastFork = current
+                }
+                current = current.children[char] ?: return null
+                if (size > 1) {
+                    lastForked = char
+                }
+            }
+            return Triple(current, lastFork, lastForked)
+        }
+
+        val (current, lastFork, lastForked) = findNodeAndLastFork(element) ?: return false
         if (current.children.remove(0.toChar()) != null) {
+            lastFork?.children?.remove(lastForked)
             size--
             return true
         }
@@ -68,8 +90,41 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
      *
      * Сложная
      */
-    override fun iterator(): MutableIterator<String> {
-        TODO()
+    override fun iterator(): MutableIterator<String> = TrieIterator()
+
+    private inner class TrieIterator : MutableIterator<String> {
+
+        val path = ArrayDeque<Node>()
+        var last: Node? = null
+        var expectedOperations = operations
+
+        init {
+            path.addFirst(root)
+            var left = root
+            while (left.children.keys.isNotEmpty()) {
+                left = left.children.values.first()
+                path.add(left)
+            }
+        }
+
+        override fun hasNext() = path.isNotEmpty()
+
+        override fun next(): String {
+            if (path.isEmpty()) throw NoSuchElementException()
+            checkForCmodification()
+            return ""
+        }
+
+        override fun remove() {
+            checkForCmodification()
+            if (last == null) throw IllegalStateException()
+
+            last = null
+        }
+
+        private fun checkForCmodification() {
+            if (expectedOperations != operations) throw ConcurrentModificationException()
+        }
     }
 
 }
