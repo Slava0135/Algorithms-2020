@@ -105,43 +105,36 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             throw IllegalStateException()
         }
 
-        fun replace(target: Node<T>): Node<T> {
-            var parent = target
-            var successor = parent.right!!
-            while (successor.left != null) {
-                parent = successor
-                successor = parent.left!!
+        return when {
+            root == null -> false
+            root!!.value == element -> removeRoot()
+            else -> {
+                val parent = findParent(root!!) ?: return false
+                remove(parent, element)
             }
+        }
+    }
 
-            if (parent != target) {
-                parent.left = successor.right
-            }
-
-            successor.left = target.left
-            if (target.right != successor) {
-                successor.right = target.right
-            }
-            return successor
+    private fun replace(target: Node<T>): Node<T> {
+        var parent = target
+        var successor = parent.right!!
+        while (successor.left != null) {
+            parent = successor
+            successor = parent.left!!
         }
 
-        if (root == null) return false
-
-        if (root!!.value == element) {
-            root = if (root!!.left != null && root!!.right != null) {
-                replace(root!!)
-            } else if (root!!.left != null) {
-                root!!.left
-            } else if (root!!.right != null) {
-                root!!.right
-            } else {
-                null
-            }
-            size--
-            return true
+        if (parent != target) {
+            parent.left = successor.right
         }
 
-        val parent = findParent(root!!) ?: return false
+        successor.left = target.left
+        if (target.right != successor) {
+            successor.right = target.right
+        }
+        return successor
+    }
 
+    private fun remove(parent: Node<T>, element: T): Boolean {
         if (parent.left?.value == element) {
             val node = parent.left!!
             if (node.left != null && node.right != null) {
@@ -165,6 +158,20 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         return true
     }
 
+    private fun removeRoot(): Boolean {
+        root = if (root!!.left != null && root!!.right != null) {
+            replace(root!!)
+        } else if (root!!.left != null) {
+            root!!.left
+        } else if (root!!.right != null) {
+            root!!.right
+        } else {
+            null
+        }
+        size--
+        return true
+    }
+
     override fun comparator(): Comparator<in T>? =
         null
 
@@ -174,7 +181,10 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
 
         private val queue = ArrayDeque<Node<T>>()
+        private val parents = mutableMapOf<T, Node<T>>()
+
         private var last: T? = null
+
         private var expectedOperations = operations
 
         init {
@@ -182,6 +192,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                 queue.addFirst(root!!)
                 var left = root!!
                 while (left.left != null) {
+                    parents[left.left!!.value] = left
                     left = left.left!!
                     queue.addFirst(left)
                 }
@@ -221,14 +232,20 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             val lastNode = queue.first()
             queue.removeFirst()
 
+            parents.remove(last)
             last = lastNode.value
 
             if (lastNode.right != null) {
+
                 queue.addFirst(lastNode.right!!)
+                parents[lastNode.right!!.value] = lastNode
+
                 lastNode.right!!.left?.let {
                     var left = lastNode.right!!.left!!
                     queue.addFirst(left)
+                    parents[left.value] = lastNode.right!!
                     while (left.left != null) {
+                        parents[left.left!!.value] = left
                         left = left.left!!
                         queue.addFirst(left)
                     }
@@ -254,7 +271,12 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             if (last == null) throw NoSuchElementException()
             checkForCmodification()
             expectedOperations++
-            remove(last)
+            val parent = parents[last]
+            if (parent == null) {
+                removeRoot()
+            } else {
+                remove(parent, last!!)
+            }
             last = null
         }
 
