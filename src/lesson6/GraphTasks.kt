@@ -116,7 +116,7 @@ fun Graph.minimumSpanningTree(): Graph {
 
         while (notProceeded.isNotEmpty()) {
             val current = notProceeded.first()
-            notProceeded.removeFirst()
+            notProceeded.removeAt(0)
             for (node in getNeighbors(current)) {
                 if (node.name !in explored) {
 
