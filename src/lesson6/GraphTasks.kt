@@ -2,6 +2,7 @@
 
 package lesson6
 
+import lesson6.impl.GraphBuilder
 import java.util.*
 
 /**
@@ -30,6 +31,8 @@ import java.util.*
  * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
  * связного графа ровно по одному разу
  */
+
+// Time: O(V + E)
 fun Graph.findEulerLoop(): List<Graph.Edge> {
 
     if (edges.size == 0) return emptyList()
@@ -94,8 +97,42 @@ fun Graph.findEulerLoop(): List<Graph.Edge> {
  * |
  * J ------------ K
  */
+
+// Time: O(V + E)
 fun Graph.minimumSpanningTree(): Graph {
-    TODO()
+
+    if (vertices.isEmpty()) return this
+
+    val notProceeded = mutableListOf<Graph.Vertex>(vertices.first())
+    val explored = mutableSetOf<String>()
+
+    val graphBuilder = GraphBuilder().apply {
+
+        val newVertices = mutableMapOf<String, Graph.Vertex>()
+
+        val first = addVertex(vertices.first().name)
+        newVertices[first.name] = first
+        explored.add(first.name)
+
+        while (notProceeded.isNotEmpty()) {
+            val current = notProceeded.first()
+            notProceeded.removeFirst()
+            for (node in getNeighbors(current)) {
+                if (node.name !in explored) {
+
+                    notProceeded.add(node)
+                    explored.add(node.name)
+
+                    val new = addVertex(node.name)
+                    newVertices[new.name] = new
+                    addConnection(newVertices[current.name]!!, new)
+
+                }
+            }
+            explored.add(current.name)
+        }
+    }
+    return graphBuilder.build()
 }
 
 /**
