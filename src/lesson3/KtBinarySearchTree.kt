@@ -353,8 +353,8 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             private var expectedOperations = tree.operations
 
             private fun addAllLeft(start: Node<T>) {
-                var node: Node<T>? = start
-                while (node!!.left != null) {
+                var node: Node<T> = start
+                while (node.left != null) {
                     if (isAboveFloor(node.left!!.value)) {
                         queue.addFirst(node.left!!)
                         parents[node.left!!.value] = node
@@ -363,7 +363,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
                         node = goRightUntilParentAboveFloor(node.left!!) ?: break
                         queue.addFirst(node.right!!)
                         parents[node.right!!.value] = node
-                        node = node.right
+                        node = node.right!!
                     }
                 }
             }

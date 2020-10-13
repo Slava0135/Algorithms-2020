@@ -2,6 +2,8 @@
 
 package lesson6
 
+import java.util.*
+
 /**
  * Эйлеров цикл.
  * Средняя
@@ -29,7 +31,39 @@ package lesson6
  * связного графа ровно по одному разу
  */
 fun Graph.findEulerLoop(): List<Graph.Edge> {
-    TODO()
+
+    if (edges.size == 0) return emptyList()
+
+    val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
+    for (vertex in vertices) {
+        connections[vertex] = getNeighbors(vertex).toMutableSet()
+        if (connections[vertex]!!.size % 2 != 0) return emptyList()
+    }
+
+    val currPath = ArrayDeque<Graph.Vertex>()
+    currPath.add(vertices.first())
+    val circuit = mutableListOf<Graph.Vertex>()
+
+    while (currPath.isNotEmpty()) {
+        val current = currPath.last()
+        if (connections[current]!!.isNotEmpty()) {
+            val next = connections[current]!!.first()
+            connections[current]!!.remove(next)
+            connections[next]!!.remove(current)
+            currPath.addLast(next)
+        } else {
+            currPath.removeLast()
+            circuit.add(current)
+        }
+    }
+
+    if (connections.any { it.value.isNotEmpty() }) return emptyList()
+
+    val result = mutableListOf<Graph.Edge>()
+    for (i in 0 until circuit.size - 1) {
+        result.add(getConnection(circuit[i], circuit[i + 1])!!)
+    }
+    return result
 }
 
 /**
