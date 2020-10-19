@@ -93,23 +93,23 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
         fun findParent(start: Node<T>): Node<T>? {
             if (element.compareTo(start.value) < 0) {
-                if (start.left == null) return null
-                if (start.left!!.value == element) return start
-                return findParent(start.left!!)
+                val left = start.left ?: return null
+                if (left.value == element) return start
+                return findParent(left)
             }
             if (element.compareTo(start.value) > 0) {
-                if (start.right == null) return null
-                if (start.right!!.value == element) return start
-                return findParent(start.right!!)
+                val right = start.right ?: return null
+                if (right.value == element) return start
+                return findParent(right)
             }
             throw IllegalStateException()
         }
 
-        return when {
-            root == null -> false
-            root!!.value == element -> removeRoot()
+        val root = root ?: return false
+        return when (root.value) {
+            element -> removeRoot()
             else -> {
-                val parent = findParent(root!!) ?: return false
+                val parent = findParent(root) ?: return false
                 remove(parent, element)
             }
         }
