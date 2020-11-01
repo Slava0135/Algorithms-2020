@@ -4,6 +4,7 @@ package lesson6
 
 import lesson6.impl.GraphBuilder
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 /**
  * Эйлеров цикл.
@@ -243,8 +244,41 @@ fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
  *
  * Ответ: A, E, J, K, D, C, H, G, B, F, I
  */
+
+// Time(N^2), Space(N)
 fun Graph.longestSimplePath(): Path {
-    TODO()
+
+    val path = LinkedHashSet<Graph.Vertex>()
+    var best: List<Graph.Vertex>? = null
+
+    fun next() {
+        val last = path.last()
+        var allFailed = true
+        for (neighbour in getNeighbors(last)) {
+            if (neighbour !in path) {
+                path.add(neighbour)
+                next()
+                path.remove(neighbour)
+                allFailed = false
+            }
+        }
+        if (allFailed && (best == null || path.size > best!!.size)) best = path.toList()
+    }
+
+    for (vertex in vertices) {
+        path.clear()
+        path.add(vertex)
+        next()
+    }
+
+    if (best == null) return Path()
+
+    var result = Path(best!!.first())
+    best!!.drop(1).forEach {
+        result = Path(result, this, it)
+    }
+
+    return result
 }
 
 /**
