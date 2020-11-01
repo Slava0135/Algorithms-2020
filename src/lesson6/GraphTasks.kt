@@ -163,7 +163,36 @@ fun Graph.minimumSpanningTree(): Graph {
  */
 
 // Time: (V + E), Space: (V + E)
+fun Graph.detectCycle(): Boolean {
+
+    val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
+    for (vertex in vertices) {
+        connections[vertex] = getNeighbors(vertex).toMutableSet()
+    }
+
+    val vertices = vertices.toMutableSet()
+
+    while (vertices.isNotEmpty()) {
+        val iterator = vertices.iterator()
+        var isFound = false
+        while (iterator.hasNext()) {
+            val next = iterator.next()
+            if (connections[next]!!.size <= 1) {
+                iterator.remove()
+                connections.remove(next)
+                getNeighbors(next).forEach { connections[it]?.remove(next) }
+                isFound = true
+            }
+        }
+        if (!isFound) return true
+    }
+    return false
+}
+
+// Time: (V + E), Space: (V + E)
 fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
+
+    require(!detectCycle())
 
     val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
     for (vertex in vertices) {
