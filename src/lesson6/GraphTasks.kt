@@ -252,9 +252,8 @@ fun Graph.longestSimplePath(): Path {
     var best: List<Graph.Vertex>? = null
 
     fun next() {
-        val last = path.last()
         var allFailed = true
-        for (neighbour in getNeighbors(last)) {
+        for (neighbour in getNeighbors(path.last())) {
             if (neighbour !in path) {
                 path.add(neighbour)
                 next()
