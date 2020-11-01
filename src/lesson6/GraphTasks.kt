@@ -164,36 +164,38 @@ fun Graph.minimumSpanningTree(): Graph {
 fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
     //require(minimumSpanningTree().edges.size == edges.size)
 
-    val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
-    for (vertex in vertices) {
-        connections[vertex] = getNeighbors(vertex).toMutableSet()
-    }
+    fun findFromTree(graph: Graph): Set<Graph.Vertex> {
 
-    val result = mutableListOf<Graph.Vertex>()
-    val vertices = vertices.toMutableList()
-
-    var neighbours = 0
-    while (vertices.isNotEmpty()) {
-        val removed = mutableListOf<Graph.Vertex>()
+        val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
         for (vertex in vertices) {
-            if (connections[vertex] == null || connections[vertex]!!.size == neighbours) {
-                result.add(vertex)
-                removed.add(vertex)
-                connections[vertex]?.let { removed.addAll(it) }
-                connections.remove(vertex)
-                getNeighbors(vertex).forEach { connections[it]?.remove(vertex) }
-                neighbours = 0
-                break
+            connections[vertex] = getNeighbors(vertex).toMutableSet()
+        }
+
+        val vertices = vertices.reversed().toMutableList()
+
+        var neighbours = connections.maxBy { it.value.size }?.value?.size ?: 0
+
+        while (neighbours > 0) {
+            val removed = mutableListOf<Graph.Vertex>()
+            for (vertex in vertices) {
+                if (connections[vertex]!!.size == neighbours) {
+                    removed.add(vertex)
+                    connections.remove(vertex)
+                    getNeighbors(vertex).forEach { connections[it]?.remove(vertex) }
+                    break
+                }
+            }
+            if (removed.isEmpty()) {
+                neighbours--
+            } else {
+                vertices.removeAll(removed)
             }
         }
-        if (removed.isEmpty()) {
-            neighbours++
-        } else {
-            vertices.removeAll(removed)
-        }
+
+        return vertices.toSet()
     }
 
-    return result.toSet()
+    return findFromTree(this)
 }
 
 /**
