@@ -161,41 +161,37 @@ fun Graph.minimumSpanningTree(): Graph {
  *
  * Эта задача может быть зачтена за пятый и шестой урок одновременно
  */
+
+// Time: (V + E), Space: (V + E)
 fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
-    //require(minimumSpanningTree().edges.size == edges.size)
 
-    fun findFromTree(graph: Graph): Set<Graph.Vertex> {
-
-        val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
-        for (vertex in vertices) {
-            connections[vertex] = getNeighbors(vertex).toMutableSet()
-        }
-
-        val vertices = vertices.reversed().toMutableList()
-
-        var neighbours = connections.maxBy { it.value.size }?.value?.size ?: 0
-
-        while (neighbours > 0) {
-            val removed = mutableListOf<Graph.Vertex>()
-            for (vertex in vertices) {
-                if (connections[vertex]!!.size == neighbours) {
-                    removed.add(vertex)
-                    connections.remove(vertex)
-                    getNeighbors(vertex).forEach { connections[it]?.remove(vertex) }
-                    break
-                }
-            }
-            if (removed.isEmpty()) {
-                neighbours--
-            } else {
-                vertices.removeAll(removed)
-            }
-        }
-
-        return vertices.toSet()
+    val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
+    for (vertex in vertices) {
+        connections[vertex] = getNeighbors(vertex).toMutableSet()
     }
 
-    return findFromTree(this)
+    val vertices = vertices.reversed().toMutableList()
+
+    var neighbours = connections.maxBy { it.value.size }?.value?.size ?: 0
+
+    while (neighbours > 0) {
+        val removed = mutableListOf<Graph.Vertex>()
+        for (vertex in vertices) {
+            if (connections[vertex]!!.size == neighbours) {
+                removed.add(vertex)
+                connections.remove(vertex)
+                getNeighbors(vertex).forEach { connections[it]?.remove(vertex) }
+                break
+            }
+        }
+        if (removed.isEmpty()) {
+            neighbours--
+        } else {
+            vertices.removeAll(removed)
+        }
+    }
+
+    return vertices.toSet()
 }
 
 /**
