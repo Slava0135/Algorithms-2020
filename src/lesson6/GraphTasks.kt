@@ -162,7 +162,38 @@ fun Graph.minimumSpanningTree(): Graph {
  * Эта задача может быть зачтена за пятый и шестой урок одновременно
  */
 fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
-    TODO()
+    //require(minimumSpanningTree().edges.size == edges.size)
+
+    val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
+    for (vertex in vertices) {
+        connections[vertex] = getNeighbors(vertex).toMutableSet()
+    }
+
+    val result = mutableListOf<Graph.Vertex>()
+    val vertices = vertices.toMutableList()
+
+    var neighbours = 0
+    while (vertices.isNotEmpty()) {
+        val removed = mutableListOf<Graph.Vertex>()
+        for (vertex in vertices) {
+            if (connections[vertex] == null || connections[vertex]!!.size == neighbours) {
+                result.add(vertex)
+                removed.add(vertex)
+                connections[vertex]?.let { removed.addAll(it) }
+                connections.remove(vertex)
+                getNeighbors(vertex).forEach { connections[it]?.remove(vertex) }
+                neighbours = 0
+                break
+            }
+        }
+        if (removed.isEmpty()) {
+            neighbours++
+        } else {
+            vertices.removeAll(removed)
+        }
+    }
+
+    return result.toSet()
 }
 
 /**
