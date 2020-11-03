@@ -325,7 +325,8 @@ fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
                             return true
                         }
                         fun Pair<Int, Int>.isValid() = first in grid.indices && second in grid[0].indices
-                        offset.forEach { next ->
+                        offset.forEach {
+                            val next = Pair(x + it.first, y + it.second)
                             if (next.isValid() && grid[next.first][next.second] == word[visited.size] && next !in visited) {
                                 visited.add(next)
                                 if (find(next.first, next.second)) return true
