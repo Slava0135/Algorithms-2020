@@ -3,6 +3,7 @@
 package lesson6
 
 import lesson6.impl.GraphBuilder
+import java.io.File
 import java.util.*
 import kotlin.collections.LinkedHashSet
 
@@ -310,5 +311,33 @@ fun Graph.longestSimplePath(): Path {
  * Остальные символы ни в файле, ни в словах не допускаются.
  */
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
-    TODO()
+    val grid = File(inputName).readLines().map { line -> line.split(" ").map { it.first() } }
+    val result = mutableSetOf<String>()
+    val offset = listOf(Pair(0, 1), Pair(1, 0), Pair(0, -1), Pair(-1, 0))
+    for (word in words) {
+        search@ for (i in grid.indices) {
+            for (j in grid[0].indices) {
+                if (grid[i][j] == word.first()) {
+                    val visited = LinkedHashSet<Pair<Int, Int>>().apply { add(Pair(i, j)) }
+                    fun find(x: Int, y: Int): Boolean {
+                        if (visited.size == word.length) {
+                            result.add(word)
+                            return true
+                        }
+                        fun Pair<Int, Int>.isValid() = first in grid.indices && second in grid[0].indices
+                        offset.forEach { next ->
+                            if (next.isValid() && grid[next.first][next.second] == word[visited.size] && next !in visited) {
+                                visited.add(next)
+                                if (find(next.first, next.second)) return true
+                                visited.remove(next)
+                            }
+                        }
+                        return false
+                    }
+                    if (find(i, j)) break@search
+                }
+            }
+        }
+    }
+    return result
 }
