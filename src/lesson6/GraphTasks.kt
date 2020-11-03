@@ -164,7 +164,7 @@ fun Graph.minimumSpanningTree(): Graph {
  * Эта задача может быть зачтена за пятый и шестой урок одновременно
  */
 
-// Time: (V + E), Space: (V + E)
+// Time: O(V + E), Space: O(V + E)
 fun Graph.detectCycle(): Boolean {
 
     val connections = mutableMapOf<Graph.Vertex, MutableSet<Graph.Vertex>>()
@@ -191,7 +191,7 @@ fun Graph.detectCycle(): Boolean {
     return false
 }
 
-// Time: (V + E), Space: (V + E)
+// Time: O(V + E), Space: O(V + E)
 fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
 
     require(!detectCycle())
@@ -246,7 +246,7 @@ fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
  * Ответ: A, E, J, K, D, C, H, G, B, F, I
  */
 
-// Time(N^2), Space(N)
+// Time: O(N^2), Space: O(N)
 fun Graph.longestSimplePath(): Path {
 
     val path = LinkedHashSet<Graph.Vertex>()
@@ -311,7 +311,7 @@ fun Graph.longestSimplePath(): Path {
  * Остальные символы ни в файле, ни в словах не допускаются.
  */
 
-//Time(S * L * W), Space: (S + W * L), где S - кол-во букв, L - сред. длина слова, W - размер словаря.
+//Time: O(S * L * W), Space: O(S + W * L), где S - кол-во букв, L - сред. длина слова, W - размер словаря.
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
     val grid = File(inputName).readLines().map { line -> line.split(" ").map { it.first() } }
     val result = mutableSetOf<String>()
