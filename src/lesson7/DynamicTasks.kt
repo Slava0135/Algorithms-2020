@@ -14,8 +14,52 @@ package lesson7
  * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
+
+// Time: avg./worst O(N * M), Memory: O(N * M)
 fun longestCommonSubSequence(first: String, second: String): String {
-    TODO()
+
+    val grid = Array(first.length) { IntArray(second.length) { 0 } }
+
+    var max = Pair(0, 0)
+    var maxValue = 0
+
+    for (i in grid.indices) {
+        for (j in grid[0].indices) {
+            if (first[i] == second[j]) {
+                if (j > 0 && i > 0) {
+                    grid[i][j] = grid[i - 1][j - 1]
+                }
+                grid[i][j]++
+                if (grid[i][j] > maxValue) {
+                    max = Pair(i, j)
+                    maxValue = grid[i][j]
+                }
+            } else {
+                var copy = 0
+                if (i > 0 && grid[i - 1][j] > copy) copy = grid[i - 1][j]
+                if (j > 0 && grid[i][j - 1] > copy) copy = grid[i][j - 1]
+                grid[i][j] = copy
+            }
+        }
+    }
+
+    val result = StringBuilder()
+    var (x, y) = max
+    while (grid[x][y] > 0) {
+        if (x > 0 && grid[x - 1][y] == grid[x][y]) {
+            x--
+        } else if (y > 0 && grid[x][y - 1] == grid[x][y]) {
+            y--
+        } else if (x > 0 && y > 0 && grid[x - 1][y - 1] == grid[x][y] - 1) {
+            result.append(first[x])
+            x--
+            y--
+        } else {
+            result.append(first[x])
+            break
+        }
+    }
+    return result.reversed().toString()
 }
 
 /**
