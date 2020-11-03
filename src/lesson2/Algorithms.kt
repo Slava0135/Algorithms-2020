@@ -127,7 +127,7 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * вернуть ту из них, которая встречается раньше в строке first.
  */
 
-// Time: avg./worst O(N * M), Memory: O(N * M)
+// Time: avg./worst O(N * M), Memory: O(N * M), N и M - длины строк
 fun longestCommonSubstring(first: String, second: String): String {
     val grid = Array(first.length) { IntArray(second.length) { 0 } }
     for (j in grid[0].indices) {

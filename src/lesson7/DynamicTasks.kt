@@ -2,6 +2,8 @@
 
 package lesson7
 
+import java.io.File
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -15,7 +17,7 @@ package lesson7
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
 
-// Time: avg./worst O(N * M), Memory: O(N * M)
+// Time: avg./worst O(N * M), Memory: O(N * M), N и M - длины строк
 fun longestCommonSubSequence(first: String, second: String): String {
 
     val grid = Array(first.length) { IntArray(second.length) { 0 } }
@@ -74,6 +76,8 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
+
+// Time: O(N * N), Memory: O(N)
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
 
     if (list.isEmpty()) return emptyList()
@@ -119,8 +123,30 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  *
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
  */
+
+//Time: O(N), Space: O(N), N - число клеток
 fun shortestPathOnField(inputName: String): Int {
-    TODO()
+
+    val input = File(inputName).readLines().map { line -> line.split(" ").map { it.toInt() } }
+    val grid = Array(input.size) { IntArray(input[0].size) { 0 } }
+
+    for (x in grid.indices) {
+        for (y in grid[0].indices) {
+            var min = Int.MAX_VALUE
+            if (x > 0 && grid[x - 1][y] < min) {
+                min = grid[x - 1][y]
+            }
+            if (y > 0 && grid[x][y - 1] < min) {
+                min = grid[x][y - 1]
+            }
+            if (x > 0 && y > 0 && grid[x - 1][y - 1] < min) {
+                min = grid[x - 1][y - 1]
+            }
+            grid[x][y] = if (min == Int.MAX_VALUE) 0 else min + input[x][y]
+        }
+    }
+
+    return grid.last().last()
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"
