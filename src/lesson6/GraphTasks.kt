@@ -310,6 +310,8 @@ fun Graph.longestSimplePath(): Path {
  * В файле буквы разделены пробелами, строки -- переносами строк.
  * Остальные символы ни в файле, ни в словах не допускаются.
  */
+
+//Time(S * L * W), Space: (S + W * L), где S - кол-во букв, L - сред. длина слова, W - размер словаря.
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
     val grid = File(inputName).readLines().map { line -> line.split(" ").map { it.first() } }
     val result = mutableSetOf<String>()
