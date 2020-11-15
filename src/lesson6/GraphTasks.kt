@@ -246,7 +246,7 @@ fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
  * Ответ: A, E, J, K, D, C, H, G, B, F, I
  */
 
-// Time: O(N^2), Space: O(N)
+// Time (worst): O(N^N), Space: O(N)
 fun Graph.longestSimplePath(): Path {
 
     val path = LinkedHashSet<Graph.Vertex>()
